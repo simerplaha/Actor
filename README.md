@@ -74,3 +74,35 @@ val got = actor.getMessage() //fetch the first message in the actor's mailbox
 actor.expectMessage[Int]() //expect a message of some type
 ```
 
+## PingPong example
+
+```scala
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import com.github.simerplaha.actor._
+
+case class Pong(replyTo: ActorRef[Ping])
+case class Ping(replyTo: ActorRef[Pong])
+case class State(var count: Int)
+
+val ping =
+  Actor[Ping, State](State(0)) {
+    case (message, self) =>
+      self.state.count += 1
+      println(s"Ping: ${self.state.count}")
+      message.replyTo ! Pong(self)
+  }
+
+val pong =
+  Actor[Pong, State](State(0)) {
+    case (message, self) =>
+      self.state.count += 1
+      println(s"Pong: ${self.state.count}")
+      message.replyTo ! Ping(self)
+  }
+
+pong ! Pong(ping)
+
+//run this for 1 seconds
+Thread.sleep(1.second.toMillis)
+```
