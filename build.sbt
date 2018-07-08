@@ -33,7 +33,6 @@ lazy val Actor =
     .settings(publishSettings)
     .settings(
       libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % Test,
-      libraryDependencies += "io.netty" % "netty-all" % "4.1.25.Final",
       libraryDependencies += "io.reactivex" % "rxnetty-tcp" % "0.5.3-rc.1"
 
     )
