@@ -16,12 +16,15 @@
 
 package com.github.simerplaha.actor
 
+import java.util.concurrent.ConcurrentLinkedQueue
+
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.collection.JavaConverters._
 
 class ActorSpec extends WordSpec with Matchers with TestBase {
 
@@ -158,5 +161,4 @@ class ActorSpec extends WordSpec with Matchers with TestBase {
       actor.expectMessage[Domain.User]() shouldBe Domain.User
     }
   }
-
 }

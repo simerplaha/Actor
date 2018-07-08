@@ -9,7 +9,7 @@ parallelExecution in ThisBuild := false
 
 lazy val commonSettings = Seq(
   organization := "com.github.simerplaha",
-  version := "0.2",
+  version := "0.2.1",
   scalaVersion := scala212
 )
 
@@ -32,5 +32,8 @@ lazy val Actor =
     .settings(commonSettings)
     .settings(publishSettings)
     .settings(
-      libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % Test
+      libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % Test,
+      libraryDependencies += "io.netty" % "netty-all" % "4.1.25.Final",
+      libraryDependencies += "io.reactivex" % "rxnetty-tcp" % "0.5.3-rc.1"
+
     )

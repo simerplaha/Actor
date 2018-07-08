@@ -24,17 +24,11 @@ import scala.concurrent.duration.{FiniteDuration, _}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
-sealed trait ActorRef[-T] {
+trait ActorRef[-T] {
   /**
     * Submits message to Actor's queue and starts message execution if not already running.
     */
   def !(message: T): Unit
-
-  def clearMessages(): Unit
-
-  def hasMessages(): Boolean
-
-  def messageCount(): Int
 
   def schedule(message: T, delay: FiniteDuration): TimerTask
 }
@@ -106,13 +100,13 @@ class Actor[T, +S](val state: S,
     processMessages()
   }
 
-  override def clearMessages(): Unit =
+  def clearMessages(): Unit =
     queue.clear()
 
-  override def hasMessages(): Boolean =
+  def hasMessages(): Boolean =
     queue.isEmpty
 
-  override def messageCount(): Int =
+  def messageCount(): Int =
     queue.size()
 
   override def schedule(message: T, delay: FiniteDuration): TimerTask =
