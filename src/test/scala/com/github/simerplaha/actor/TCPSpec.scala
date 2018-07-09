@@ -26,17 +26,18 @@ import scala.concurrent.Future
 
 class TCPSpec extends WordSpec with Matchers with TestBase {
 
-  "Actor" should {
+  "TCP" should {
 
     "start a server" in {
 
       val messagesReceived = new ConcurrentLinkedQueue[String]()
 
-      val server = TCP.server[String, String](8000)(_.getBytes(), new String(_), _.getBytes()) {
-        message =>
-          messagesReceived.add(message)
-          s"response to message $message"
-      }.get
+      val server =
+        TCP.server[String, String](port = 8000, writeRequest = _.getBytes(), readRequest = new String(_), writeResponse = _.getBytes()) {
+          message =>
+            messagesReceived.add(message)
+            s"response to message $message"
+        }.get
 
       (1 to 10) foreach {
         i =>
@@ -53,7 +54,7 @@ class TCPSpec extends WordSpec with Matchers with TestBase {
       val requestsReceived = new ConcurrentLinkedQueue[String]()
 
       val server =
-        TCP.server[String, String](8000)(_.getBytes(), new String(_), _.getBytes()) {
+        TCP.server[String, String](port = 8000, writeRequest = _.getBytes(), readRequest = new String(_), writeResponse = _.getBytes()) {
           message =>
             requestsReceived.add(message)
             message
@@ -61,7 +62,7 @@ class TCPSpec extends WordSpec with Matchers with TestBase {
 
       val responsesReceived = new ConcurrentLinkedQueue[String]()
 
-      val client = TCP.client[String]("localhost", 8000)(_.getBytes(), new String(_)) {
+      val client = TCP.client[String](host = "localhost", port = 8000, writeRequest = _.getBytes(), readResponse = new String(_)) {
         response =>
           responsesReceived.add(response)
       }.get

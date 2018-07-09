@@ -59,9 +59,10 @@ object TCP {
     * To process messages sequentially and to use a stateful Actor, send all messages to another actor in the process
     * function.
     */
-  def server[T, R](port: Int)(writeRequest: T => Array[Byte],
-                              readRequest: Array[Byte] => T,
-                              writeResponse: R => Array[Byte])(process: T => R)(implicit ec: ExecutionContext): Try[TCPServer[T]] =
+  def server[T, R](port: Int,
+                   writeRequest: T => Array[Byte],
+                   readRequest: Array[Byte] => T,
+                   writeResponse: R => Array[Byte])(process: T => R)(implicit ec: ExecutionContext): Try[TCPServer[T]] =
     Try {
       TcpServer.newServer(port)
         .start {
@@ -114,8 +115,9 @@ object TCP {
     * using [[io.reactivex.netty.protocol.tcp.client.TcpClient]].
     */
   def client[T](host: String,
-                port: Int)(writeRequest: T => Array[Byte],
-                           readResponse: Array[Byte] => T)(processResponse: T => Unit)(implicit ec: ExecutionContext): Try[TCPClient[T]] =
+                port: Int,
+                writeRequest: T => Array[Byte],
+                readResponse: Array[Byte] => T)(processResponse: T => Unit)(implicit ec: ExecutionContext): Try[TCPClient[T]] =
     Try {
       TcpClient
         .newClient(host, port)

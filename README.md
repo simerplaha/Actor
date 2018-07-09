@@ -106,3 +106,22 @@ pong ! Pong(ping)
 //run this for 1 seconds
 Thread.sleep(1.second.toMillis)
 ```
+
+## TPC (Work in progress)
+
+TCP Actors are stateless and process all incoming messages concurrently. They extend the
+`ActorRef` trait to provide same API as a normal local `Actor` to make writing test cases easier.
+
+```scala
+val server =
+  TCP.server[String, String](port = 8000, writeRequest = _.getBytes(), readRequest = new String(_), writeResponse = _.getBytes()) {
+    message: String =>
+      //do something with the message and return response
+      s"response for $message"
+  }.get
+
+val client = TCP.client[String](host = "localhost", port = 8000, writeRequest = _.getBytes(), readResponse = new String(_)) {
+  response: String =>
+    //do something with the response
+}.get
+```
