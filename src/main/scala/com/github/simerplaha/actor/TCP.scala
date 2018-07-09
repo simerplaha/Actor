@@ -19,6 +19,7 @@ package com.github.simerplaha.actor
 import java.util.TimerTask
 
 import io.netty.buffer.ByteBuf
+import io.reactivex.netty.channel.Connection
 import io.reactivex.netty.protocol.tcp.client.TcpClient
 import io.reactivex.netty.protocol.tcp.server.TcpServer
 import rx.Observable
@@ -66,7 +67,7 @@ object TCP {
     Try {
       TcpServer.newServer(port)
         .start {
-          connection =>
+          connection: Connection[ByteBuf, ByteBuf] =>
             connection.writeBytesAndFlushOnEach(
               connection
                 .getInput
@@ -89,7 +90,7 @@ object TCP {
           override def !(message: T): Unit =
             client
               .flatMap {
-                connection =>
+                connection: Connection[ByteBuf, ByteBuf] =>
                   connection.writeBytes(Observable.just(writeRequest(message)))
                     .cast(classOf[ByteBuf])
                     .concatWith(connection.getInput)
@@ -128,7 +129,7 @@ object TCP {
           override def !(message: T): Unit =
             client
               .flatMap {
-                connection =>
+                connection: Connection[ByteBuf, ByteBuf] =>
                   connection.writeBytes(Observable.just(writeRequest(message)))
                     .cast(classOf[ByteBuf])
                     .concatWith(connection.getInput)

@@ -107,10 +107,15 @@ pong ! Pong(ping)
 Thread.sleep(1.second.toMillis)
 ```
 
-## TPC (Work in progress)
+## TPC (Work in progress) for Scala 2.12.+ only
 
 TCP Actors are stateless and process all incoming messages concurrently. They extend the
 `ActorRef` trait to provide same API as a normal local `Actor` to make writing test cases easier.
+
+```scala
+//for scala 2.12 only
+libraryDependencies += "com.github.simerplaha" %% "actor" % "0.2.1"
+```
 
 ```scala
 val server =
@@ -130,5 +135,4 @@ client ! "some request"
 
 Thread.sleep(1000)
 server.shutdown()
-
 ```
