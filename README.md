@@ -110,7 +110,7 @@ Thread.sleep(1.second.toMillis)
 ## TPC (Work in progress) for Scala 2.12.+ only
 
 TCP Actors are stateless and process all incoming messages concurrently. They extend the
-`ActorRef` trait to provide same API as a normal local `Actor` to make writing test cases easier.
+`ActorRef` trait to provide same API as a normal local `Actor`.
 
 See [test cases](https://github.com/simerplaha/Actor/blob/master/src/test/scala/com/github/simerplaha/actor/TCPSpec.scala).
 
