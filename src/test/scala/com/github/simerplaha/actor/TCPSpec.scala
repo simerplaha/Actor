@@ -76,6 +76,28 @@ class TCPSpec extends WordSpec with Matchers with TestBase {
       eventual(responsesReceived.asScala should contain only ((1 to 10).map(_.toString): _*))
 
       server.shutdown()
+
+    }
+
+
+    "demo" in {
+      val server =
+        TCP.server[String, String](port = 8000, writeRequest = _.getBytes(), readRequest = new String(_), writeResponse = _.getBytes()) {
+          request: String =>
+            //do something with the request and return response
+            println(s"Request received: $request")
+            s"response for $request"
+        }.get
+
+      val client = TCP.client[String](host = "localhost", port = 8000, writeRequest = _.getBytes(), readResponse = new String(_)) {
+        response: String =>
+          println(s"Response received: $response")
+      }.get
+
+      client ! "some request"
+
+      Thread.sleep(1000)
+      server.shutdown()
     }
   }
 }

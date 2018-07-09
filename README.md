@@ -115,13 +115,20 @@ TCP Actors are stateless and process all incoming messages concurrently. They ex
 ```scala
 val server =
   TCP.server[String, String](port = 8000, writeRequest = _.getBytes(), readRequest = new String(_), writeResponse = _.getBytes()) {
-    message: String =>
-      //do something with the message and return response
-      s"response for $message"
+    request: String =>
+      //do something with the request and return response
+      println(s"Request received: $request")
+      s"response for $request"
   }.get
 
 val client = TCP.client[String](host = "localhost", port = 8000, writeRequest = _.getBytes(), readResponse = new String(_)) {
   response: String =>
-    //do something with the response
+    println(s"Response received: $response")
 }.get
+
+client ! "some request"
+
+Thread.sleep(1000)
+server.shutdown()
+
 ```
