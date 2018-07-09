@@ -112,6 +112,8 @@ Thread.sleep(1.second.toMillis)
 TCP Actors are stateless and process all incoming messages concurrently. They extend the
 `ActorRef` trait to provide same API as a normal local `Actor` to make writing test cases easier.
 
+See [test cases](https://github.com/simerplaha/Actor/blob/master/src/test/scala/com/github/simerplaha/actor/TCPSpec.scala).
+
 ```scala
 //for scala 2.12 only
 libraryDependencies += "com.github.simerplaha" %% "actor" % "0.2.1"
