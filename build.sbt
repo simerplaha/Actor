@@ -3,13 +3,13 @@ import sbt.url
 import xerial.sbt.Sonatype._
 
 val scala211 = "2.11.12"
-val scala212 = "2.12.6"
+val scala212 = "2.12.7"
 
 parallelExecution in ThisBuild := false
 
 lazy val commonSettings = Seq(
   organization := "com.github.simerplaha",
-  version := "0.2.1",
+  version := "0.2.2",
   scalaVersion := scala212
 )
 
@@ -33,6 +33,7 @@ lazy val Actor =
     .settings(publishSettings)
     .settings(
       libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % Test,
-      libraryDependencies += "io.reactivex" % "rxnetty-tcp" % "0.5.3-rc.1"
+      libraryDependencies += "io.reactivex" % "rxnetty-tcp" % "0.5.3-rc.1",
+      libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
 
     )

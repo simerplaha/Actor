@@ -20,9 +20,10 @@ import java.util.TimerTask
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
 
+import com.typesafe.scalalogging.LazyLogging
+
 import scala.concurrent.duration.{FiniteDuration, _}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 trait ActorRef[-T] {
   /**
@@ -31,6 +32,8 @@ trait ActorRef[-T] {
   def !(message: T): Unit
 
   def schedule(message: T, delay: FiniteDuration): TimerTask
+
+  def terminate(): Unit
 }
 
 object Actor {
@@ -86,19 +89,23 @@ object Actor {
 
 class Actor[T, +S](val state: S,
                    execution: (T, Actor[T, S]) => Unit,
-                   private val delay: Option[FiniteDuration])(implicit ec: ExecutionContext) extends ActorRef[T] { self =>
+                   private val delay: Option[FiniteDuration])(implicit ec: ExecutionContext) extends ActorRef[T] with LazyLogging { self =>
 
   private val busy = new AtomicBoolean(false)
+  @volatile private var terminated = false
   private val queue = new ConcurrentLinkedQueue[T]
 
-  val maxMessagesToProcessAtOnce = 1000000
+  val maxMessagesToProcessAtOnce = 1000
   //if initial detail is defined, trigger processMessages() to start the timer loop.
   if (delay.isDefined) processMessages()
 
-  override def !(message: T): Unit = {
-    queue offer message
-    processMessages()
-  }
+  override def !(message: T): Unit =
+    if (terminated)
+      throw new Exception("Actor terminated")
+    else {
+      queue offer message
+      processMessages()
+    }
 
   def clearMessages(): Unit =
     queue.clear()
@@ -113,7 +120,7 @@ class Actor[T, +S](val state: S,
     Delay.task(delay)(this ! message)
 
   private def processMessages(): Unit =
-    if (!queue.isEmpty && busy.compareAndSet(false, true))
+    if (!terminated && !queue.isEmpty && busy.compareAndSet(false, true))
       delay map {
         interval =>
           if (interval.fromNow.isOverdue())
@@ -129,8 +136,13 @@ class Actor[T, +S](val state: S,
     try {
       while (processed < max) {
         val message = queue.poll
-        if (message != null) {
-          Try(execution(message, self))
+        if (message != null && !terminated) {
+          try
+            execution(message, self)
+          catch {
+            case ex: Throwable =>
+              logger.error("Error processing message", ex)
+          }
           processed += 1
         } else {
           processed = max
@@ -141,4 +153,7 @@ class Actor[T, +S](val state: S,
       processMessages()
     }
   }
+
+  override def terminate(): Unit =
+    terminated = true
 }

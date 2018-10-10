@@ -103,6 +103,7 @@ object TCP {
           override def shutdown(): Unit =
             server.shutdown()
 
+          override def terminate(): Unit = ???
         }
     }
 
@@ -143,6 +144,8 @@ object TCP {
 
           override def schedule(message: T, delay: FiniteDuration): TimerTask =
             Delay.task(delay)(this ! message)
+
+          override def terminate(): Unit = ???
         }
     }
 }

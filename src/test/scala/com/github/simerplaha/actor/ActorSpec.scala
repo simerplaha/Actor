@@ -161,4 +161,22 @@ class ActorSpec extends WordSpec with Matchers with TestBase {
       actor.expectMessage[Domain.User]() shouldBe Domain.User
     }
   }
+
+  "terminating an Actor" should {
+    "stop processing messages" in {
+
+      @volatile var messageCount = 0
+
+      val actor = Actor[String] {
+        (msg, self) =>
+          messageCount += 1
+      }
+
+      actor ! "message 1"
+      actor.terminate()
+      actor ! "message 2"
+
+      messageCount shouldBe 1
+    }
+  }
 }
