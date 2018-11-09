@@ -81,7 +81,7 @@ actor.terminate()
 
 ## Terminating an Actor on message failure
 By default actors are not terminated if there is a failure processing a message. The
-following actor enables termination if there is a failure on processing a message.
+following actor enables termination if there is a failure processing a message.
  
 ```scala
 val actor =
