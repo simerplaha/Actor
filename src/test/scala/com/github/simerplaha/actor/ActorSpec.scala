@@ -200,17 +200,5 @@ class ActorSpec extends WordSpec with Matchers with TestBase {
 
       messageCount shouldBe 1
     }
-
-    "Dsads" in {
-val actor =
-  Actor[Int](
-    (message, self) =>
-      throw new Exception("Kaboom!")
-  ).terminateOnException() //enable terminate on exception
-
-(actor ! 1) shouldBe Right(Result.Sent) //first message sent is successful
-eventually(actor.isTerminated() shouldBe true) //actor is terminated
-(actor ! 2) shouldBe Left(Result.TerminatedActor) //cannot sent messages to a terminated actor
-    }
   }
 }
