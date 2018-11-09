@@ -33,7 +33,5 @@ lazy val Actor =
     .settings(publishSettings)
     .settings(
       libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % Test,
-      libraryDependencies += "io.reactivex" % "rxnetty-tcp" % "0.5.3-rc.1",
       libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
-
     )
