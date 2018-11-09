@@ -1,9 +1,9 @@
 # Actor
 
 
-The mighty Akka is great! This implementation is a small type-safe `Actor` class 
-that implements commonly used Actor features. The implementation is small enough to make
-your own changed to it.
+The mighty [Akka](https://github.com/akka/akka) is great! 
+
+This is a small type-safe `Actor` class implementation.
 
 # Demo
 ```scala
