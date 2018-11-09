@@ -16,15 +16,12 @@
 
 package com.github.simerplaha.actor
 
-import java.util.concurrent.ConcurrentLinkedQueue
-
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.collection.JavaConverters._
 
 class ActorSpec extends WordSpec with Matchers with TestBase {
 
@@ -94,6 +91,26 @@ class ActorSpec extends WordSpec with Matchers with TestBase {
       }
     }
 
+    "not continue processing messages if execution of one message fails and terminateOnException is false" in {
+      case class State(processed: ListBuffer[Int])
+      val state = State(ListBuffer.empty)
+
+      val actor =
+        Actor[Int, State](state) {
+          case (int, self) =>
+            if (int == 2) throw new Exception(s"Oh no! Failed at $int")
+            self.state.processed += int
+        }.terminateOnException()
+
+      (1 to 3) foreach (actor ! _)
+      sleep(1.second)
+      eventual {
+        state.processed.size shouldBe 1
+        //2nd message failed
+        state.processed should contain only 1
+      }
+    }
+
     "create a stateless actor" in {
       @volatile var ran = false
       val actor = Actor[Unit] {
@@ -150,9 +167,13 @@ class ActorSpec extends WordSpec with Matchers with TestBase {
     "expect a message of higher kind" in {
       sealed trait Domain
       object Domain {
+
         sealed trait User extends Domain
+
         case object User extends User
+
         case object SomeOtherThing extends Domain
+
       }
 
       val actor = TestActor[Domain]()
@@ -172,11 +193,24 @@ class ActorSpec extends WordSpec with Matchers with TestBase {
           messageCount += 1
       }
 
-      actor ! "message 1"
+      (actor ! "message 1").isRight shouldBe true
+      eventual(messageCount shouldBe 1)
       actor.terminate()
-      actor ! "message 2"
+      (actor ! "message 2").isLeft shouldBe true
 
       messageCount shouldBe 1
+    }
+
+    "Dsads" in {
+val actor =
+  Actor[Int](
+    (message, self) =>
+      throw new Exception("Kaboom!")
+  ).terminateOnException() //enable terminate on exception
+
+(actor ! 1) shouldBe Right(Result.Sent) //first message sent is successful
+eventually(actor.isTerminated() shouldBe true) //actor is terminated
+(actor ! 2) shouldBe Left(Result.TerminatedActor) //cannot sent messages to a terminated actor
     }
   }
 }

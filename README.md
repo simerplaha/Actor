@@ -1,13 +1,13 @@
 # Actor
 
-A type-safe Actor class.
 
-The mighty Akka is great but sometimes a small implementation to process messages sequentially 
-is only needed.
+The mighty Akka is great! This implementation is a small type-safe `Actor` class 
+that implements commonly used Actor features. The implementation is small enough to make
+your own changed to it.
 
 # Demo
 ```scala
-libraryDependencies += "com.github.simerplaha" %% "actor" % "0.2"
+libraryDependencies += "com.github.simerplaha" %% "actor" % "0.2.2"
 ```
 Make sure to import `ExecutionContext`
 ```scala
@@ -63,6 +63,38 @@ val actor =
   )
 ```
 
+
+## Terminating an Actor
+
+```scala
+val actor =
+  Actor[Int](
+    (message, self) =>
+      println(message)
+  )
+
+actor.terminate()
+//cannot send messages to a terminated actor.
+(actor ! 1) shouldBe Left(Result.TerminatedActor)
+```
+
+
+## Terminating an Actor on message failure
+By default actors are not terminated if there is a failure processing a message. The
+following actor enables termination if there is a failure on processing a message.
+ 
+```scala
+val actor =
+  Actor[Int](
+    (message, self) =>
+      throw new Exception("Kaboom!")
+  ).terminateOnException() //enable terminate on exception
+
+(actor ! 1) shouldBe Right(Result.Sent) //first message sent is successful
+eventually(actor.isTerminated() shouldBe true) //actor is terminated
+(actor ! 2) shouldBe Left(Result.TerminatedActor) //cannot sent messages to a terminated actor
+```
+
 ## Testing
 Borrowing ideas from Akka the `TestActor` implements APIs to test messages in an Actor's mailbox.
 
@@ -105,36 +137,4 @@ pong ! Pong(ping)
 
 //run this for 1 seconds
 Thread.sleep(1.second.toMillis)
-```
-
-## TPC (Work in progress) for Scala 2.12.+ only
-
-TCP Actors are stateless and process all incoming messages concurrently. They extend the
-`ActorRef` trait to provide same API as a normal local `Actor`.
-
-See [test cases](https://github.com/simerplaha/Actor/blob/master/src/test/scala/com/github/simerplaha/actor/TCPSpec.scala).
-
-```scala
-//for scala 2.12 only
-libraryDependencies += "com.github.simerplaha" %% "actor" % "0.2.1"
-```
-
-```scala
-val server =
-  TCP.server[String, String](port = 8000, writeRequest = _.getBytes(), readRequest = new String(_), writeResponse = _.getBytes()) {
-    request: String =>
-      //do something with the request and return response
-      println(s"Request received: $request")
-      s"response for $request"
-  }.get
-
-val client = TCP.client[String](host = "localhost", port = 8000, writeRequest = _.getBytes(), readResponse = new String(_)) {
-  response: String =>
-    println(s"Response received: $response")
-}.get
-
-client ! "some request"
-
-Thread.sleep(1000)
-server.shutdown()
 ```

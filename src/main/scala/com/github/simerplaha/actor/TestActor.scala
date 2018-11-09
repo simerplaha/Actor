@@ -36,8 +36,10 @@ case class TestActor[T](implicit ec: ExecutionContext) extends Actor[T, Unit](()
   override def messageCount: Int =
     queue.size()
 
-  override def !(message: T): Unit =
+  override def !(message: T): Either[Result.TerminatedActor, Result.Sent] = {
     queue add message
+    Right(Result.Sent)
+  }
 
   private def sleep(time: FiniteDuration): Unit =
     Thread.sleep(time.toMillis)

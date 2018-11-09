@@ -29,14 +29,22 @@ trait ActorRef[-T] {
   /**
     * Submits message to Actor's queue and starts message execution if not already running.
     */
-  def !(message: T): Unit
+  def !(message: T): Either[Result.TerminatedActor, Result.Sent]
 
   def schedule(message: T, delay: FiniteDuration): TimerTask
 
   def terminate(): Unit
+
+  def isTerminated(): Boolean
+
+  def terminateOnException(): ActorRef[T]
 }
 
 object Actor {
+
+  //initialise static variables for ! return type instead of recreating this object for each send.
+  private[actor] val messageSent = Right(Result.Sent)
+  private[actor] val terminatedActor = Left(Result.TerminatedActor)
 
   /**
     * Basic stateless Actor that processes all incoming messages sequentially.
@@ -89,22 +97,28 @@ object Actor {
 
 class Actor[T, +S](val state: S,
                    execution: (T, Actor[T, S]) => Unit,
-                   private val delay: Option[FiniteDuration])(implicit ec: ExecutionContext) extends ActorRef[T] with LazyLogging { self =>
+                   private val delay: Option[FiniteDuration])(implicit ec: ExecutionContext) extends ActorRef[T] with LazyLogging {
+  self =>
 
   private val busy = new AtomicBoolean(false)
   @volatile private var terminated = false
+  @volatile private var _terminateOnException = false
   private val queue = new ConcurrentLinkedQueue[T]
 
   val maxMessagesToProcessAtOnce = 1000
   //if initial detail is defined, trigger processMessages() to start the timer loop.
   if (delay.isDefined) processMessages()
 
-  override def !(message: T): Unit =
+  /**
+    * Submits a message to the Actor. Returns
+    */
+  override def !(message: T): Either[Result.TerminatedActor, Result.Sent] =
     if (terminated)
-      throw new Exception("Actor terminated")
+      Actor.terminatedActor
     else {
       queue offer message
       processMessages()
+      Actor.messageSent
     }
 
   def clearMessages(): Unit =
@@ -142,6 +156,7 @@ class Actor[T, +S](val state: S,
           catch {
             case ex: Throwable =>
               logger.error("Error processing message", ex)
+              if (_terminateOnException) terminate()
           }
           processed += 1
         } else {
@@ -156,4 +171,20 @@ class Actor[T, +S](val state: S,
 
   override def terminate(): Unit =
     terminated = true
+
+  override def isTerminated(): Boolean =
+    terminated
+
+  /**
+    * Mutable var [[_terminateOnException]] used here.
+    * Would prefer this is be passed in as an immutable
+    * Actor's parameter but this would make the API a little unfriendly.
+    * So keeping it as mutable var.
+    */
+  override def terminateOnException(): ActorRef[T] = {
+    _terminateOnException = true
+    this
+  }
+
+
 }
