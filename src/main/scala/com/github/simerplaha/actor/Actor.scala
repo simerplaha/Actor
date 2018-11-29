@@ -127,9 +127,12 @@ class Actor[T, +S](val state: S,
     val promise = Promise[R]()
     val replyTo = Actor[R]((response, _) => promise.success(response))
 
-    this
-      .!(message(replyTo)) //send message
-      .map(_ => promise.future) //get future from promise
+    this.!(message(replyTo)) match {
+      case Left(value) =>
+        Left(value)
+      case Right(_) =>
+        Right(promise.future)
+    }
   }
 
   def clearMessages(): Unit =
