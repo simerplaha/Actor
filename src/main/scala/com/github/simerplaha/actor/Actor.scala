@@ -16,20 +16,23 @@
 
 package com.github.simerplaha.actor
 
+import com.typesafe.scalalogging.LazyLogging
 import java.util.TimerTask
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
-
-import com.typesafe.scalalogging.LazyLogging
-
 import scala.concurrent.duration.{FiniteDuration, _}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 
 trait ActorRef[-T] {
   /**
     * Submits message to Actor's queue and starts message execution if not already running.
     */
   def !(message: T): Either[Result.TerminatedActor, Result.Sent]
+
+  /**
+    * Submits message to Actor's queue and using Promise it returns a Future response.
+    */
+  def ?[R](message: ActorRef[R] => T): Either[Result.TerminatedActor, Future[R]]
 
   def schedule(message: T, delay: FiniteDuration): TimerTask
 
@@ -43,8 +46,8 @@ trait ActorRef[-T] {
 object Actor {
 
   //initialise static variables for ! return type instead of recreating this object for each send.
-  private[actor] val messageSent = Right(Result.Sent)
-  private[actor] val terminatedActor = Left(Result.TerminatedActor)
+  val messageSent = Right(Result.Sent)
+  val terminatedActor = Left(Result.TerminatedActor)
 
   /**
     * Basic stateless Actor that processes all incoming messages sequentially.
@@ -97,8 +100,7 @@ object Actor {
 
 class Actor[T, +S](val state: S,
                    execution: (T, Actor[T, S]) => Unit,
-                   private val delay: Option[FiniteDuration])(implicit ec: ExecutionContext) extends ActorRef[T] with LazyLogging {
-  self =>
+                   private val delay: Option[FiniteDuration])(implicit ec: ExecutionContext) extends ActorRef[T] with LazyLogging { self =>
 
   private val busy = new AtomicBoolean(false)
   @volatile private var terminated = false
@@ -110,7 +112,7 @@ class Actor[T, +S](val state: S,
   if (delay.isDefined) processMessages()
 
   /**
-    * Submits a message to the Actor. Returns
+    * Submits a message to the Actor.
     */
   override def !(message: T): Either[Result.TerminatedActor, Result.Sent] =
     if (terminated)
@@ -120,6 +122,15 @@ class Actor[T, +S](val state: S,
       processMessages()
       Actor.messageSent
     }
+
+  override def ?[R](message: ActorRef[R] => T): Either[Result.TerminatedActor, Future[R]] = {
+    val promise = Promise[R]()
+    val replyTo = Actor[R]((response, _) => promise.success(response))
+
+    this
+      .!(message(replyTo)) //send message
+      .map(_ => promise.future) //get future from promise
+  }
 
   def clearMessages(): Unit =
     queue.clear()
@@ -185,6 +196,4 @@ class Actor[T, +S](val state: S,
     _terminateOnException = true
     this
   }
-
-
 }

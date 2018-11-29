@@ -16,6 +16,7 @@
 
 package com.github.simerplaha.actor
 
+import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
@@ -78,4 +79,17 @@ object Test extends App {
   actor ! 1
   actor.expectMessage[Int]()
 
+}
+
+object Ask extends App {
+  case class CreateUser(name: String)(val replyTo: ActorRef[Boolean])
+
+  val actor = Actor[CreateUser] {
+    (message: CreateUser, _) =>
+      message.replyTo ! true
+  }
+
+  val response: Future[Boolean] = (actor ? CreateUser("Tony Stark")).right.get
+
+  Await.result(response, 1.second)
 }

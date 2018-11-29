@@ -3,7 +3,8 @@
 
 The mighty [Akka](https://github.com/akka/akka) is great! 
 
-This is a small type-safe `Actor` class implementation.
+This is a small type-safe `Actor` class that implements most commonly used Actor APIs
+including ask (`?`) which returns a typed `Future[R]`.
 
 # Demo
 ```scala
@@ -78,6 +79,19 @@ actor.terminate()
 (actor ! 1) shouldBe Left(Result.TerminatedActor)
 ```
 
+## Ask - Get a Future response
+```scala
+case class CreateUser(name: String)(val replyTo: ActorRef[Boolean])
+
+val actor = Actor[CreateUser] {
+  (message: CreateUser, _) =>
+    message.replyTo ! true
+}
+
+val response: Future[Boolean] = (actor ? CreateUser("Tony Stark")).right.get
+
+Await.result(response, 1.second)
+```
 
 ## Terminating an Actor on message failure
 By default actors are not terminated if there is a failure processing a message. The

@@ -17,11 +17,13 @@
 package com.github.simerplaha.actor
 
 import org.scalatest.{Matchers, WordSpec}
-
+import scala.collection.immutable
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
+
+case class ToInt(string: String)(val replyTo: ActorRef[Int])
 
 class ActorSpec extends WordSpec with Matchers with TestBase {
 
@@ -200,5 +202,41 @@ class ActorSpec extends WordSpec with Matchers with TestBase {
 
       messageCount shouldBe 1
     }
+  }
+
+  "ask" in {
+    val actor =
+      Actor[ToInt] {
+        (message, _) =>
+          message.replyTo ! message.string.toInt
+      }
+
+    import scala.concurrent.duration._
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    val futures: Future[immutable.IndexedSeq[(Int, Int)]] =
+      Future.sequence {
+        (1 to 100) map {
+          request =>
+            (actor ? ToInt(request.toString)).right.get map {
+              response =>
+                (request, response)
+            }
+        }
+      }
+
+    val responses = Await.result(futures, 10.second)
+    responses should have size 100
+    responses foreach {
+      case (request, response) =>
+        response shouldBe request
+    }
+  }
+
+  "ask on terminated actor should fail" in {
+    val actor = Actor[ToInt]((_, _) => ())
+    actor.terminate()
+
+    (actor ? ToInt("122")) shouldBe Actor.terminatedActor
   }
 }
