@@ -8,7 +8,7 @@ including ask (`?`) which returns a typed `Future[R]`.
 
 # Demo
 ```scala
-libraryDependencies += "com.github.simerplaha" %% "actor" % "0.2.2"
+libraryDependencies += "com.github.simerplaha" %% "actor" % "0.2.3"
 ```
 Make sure to import `ExecutionContext`
 ```scala
