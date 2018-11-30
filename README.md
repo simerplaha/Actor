@@ -12,7 +12,7 @@ to create custom messages.
 
 # Setup
 ```scala
-libraryDependencies += "com.github.simerplaha" %% "actor" % "0.2.3"
+libraryDependencies += "com.github.simerplaha" %% "actor" % "0.2.4"
 ```
 Make sure to import `ExecutionContext`
 ```scala
