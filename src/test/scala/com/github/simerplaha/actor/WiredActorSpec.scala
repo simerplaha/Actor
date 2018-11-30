@@ -16,34 +16,33 @@
 
 package com.github.simerplaha.actor
 
-import scala.concurrent.duration._
+import org.scalatest.{Matchers, WordSpec}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object PingPong extends TestBase with App {
+class WiredActorSpec extends WordSpec with Matchers with TestBase {
 
-  case class Pong(replyTo: ActorRef[Ping])
-  case class Ping(replyTo: ActorRef[Pong])
-  case class State(var count: Int)
+  "Actor" should {
 
-  val ping =
-    Actor[Ping, State](State(0)) {
-      case (message, self) =>
-        self.state.count += 1
-        println(s"Ping: ${self.state.count}")
-//        sleep(100.millisecond)
-        message.replyTo ! Pong(self)
+    "process messages in order of arrival" in {
+      object MyImpl {
+        def hello(name: String, replyTo: WiredActor[MyImpl.type]): String = {
+          replyTo.send(_.hi("WiredActor"))
+          s"Hello $name"
+        }
+
+        def hi(name: String): Unit =
+          println(s"Hi from $name")
+      }
+
+      val actor = Actor.wire(MyImpl)
+
+      actor
+        .call {
+          (impl, self) =>
+            impl.hello("John", self)
+        }
+        .await() shouldBe "Hello John"
+
     }
-
-  val pong =
-    Actor[Pong, State](State(0)) {
-      case (message, self) =>
-        self.state.count += 1
-        println(s"Pong: ${self.state.count}")
-//        sleep(100.millisecond)
-        message.replyTo ! Ping(self)
-    }
-
-  pong ! Pong(ping)
-
-  sleep(1.seconds)
+  }
 }

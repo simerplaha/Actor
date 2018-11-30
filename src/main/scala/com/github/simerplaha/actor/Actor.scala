@@ -96,6 +96,12 @@ object Actor {
         },
       delay = None
     )
+
+  def wire[T](impl: T)(implicit ec: ExecutionContext): WiredActor[T] =
+    new WiredActor[T](impl, None)
+
+  def wireTimer[T](delays: FiniteDuration, impl: T)(implicit ec: ExecutionContext): WiredActor[T] =
+    new WiredActor[T](impl, Some(delays))
 }
 
 class Actor[T, +S](val state: S,
@@ -127,9 +133,12 @@ class Actor[T, +S](val state: S,
     val promise = Promise[R]()
     val replyTo = Actor[R]((response, _) => promise.success(response))
 
-    this
-      .!(message(replyTo)) //send message
-      .map(_ => promise.future) //get future from promise
+    this ! message(replyTo) match {
+      case Left(terminatedActor) =>
+        Left(terminatedActor)
+      case Right(_) =>
+        Right(promise.future)
+    }
   }
 
   def clearMessages(): Unit =

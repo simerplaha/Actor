@@ -16,6 +16,7 @@
 
 package com.github.simerplaha.actor
 
+import java.util.TimerTask
 import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -92,4 +93,36 @@ object Ask extends App {
   val response: Future[Boolean] = (actor ? CreateUser("Tony Stark")).right.get
 
   Await.result(response, 1.second)
+}
+
+object WiredDemo extends App {
+  //suppose this is your implementation
+  object MyImpl {
+    //pure function
+    def hello(name: String): String =
+      s"Hello $name"
+
+    def helloFuture(name: String): Future[String] =
+      Future(s"Hello $name") //some delay operation
+  }
+  //create a wired Actor from your implementation
+  val actor = Actor.wire(MyImpl)
+
+  //call functions on the Actor.
+  val response: Future[String] = actor.call(_.hello("World"))
+  response.foreach(println)
+
+  //call functions on the Actor.
+  val responseFlatMap = actor.callFlatMap(_.helloFuture("World from Future"))
+  responseFlatMap.foreach(println)
+
+  //send is fire and forget. Returns type Unit
+  val responseUnit: Unit = actor.send(impl => println(impl.hello("World again!")))
+
+  //schedule a function call on the actor. Returns Future response and TimerTask to cancel.
+  val scheduleResponse: (Future[String], TimerTask) = actor.scheduleCall(delay = 1.second)(_.hello("World!!"))
+  scheduleResponse._1.foreach(println)
+
+  //Give enough time for this test to run
+  Thread.sleep(2000)
 }

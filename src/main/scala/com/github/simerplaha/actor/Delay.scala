@@ -23,7 +23,7 @@ import scala.concurrent.{ExecutionContext, Future, Promise}
 
 object Delay {
 
-  val timer = new Timer(true)
+  private val timer = new Timer(true)
 
   private def runWithDelay[T](delayFor: FiniteDuration)(block: => Future[T])(implicit ctx: ExecutionContext): Future[T] = {
     val promise = Promise[T]()

@@ -6,7 +6,10 @@ The mighty [Akka](https://github.com/akka/akka) is great!
 This is a small type-safe `Actor` class that implements most commonly used Actor APIs
 including ask (`?`) which returns a typed `Future[R]`.
 
-# Demo
+Create `WiredActor` where no `case class` messages are required and 
+functions can be submitted as messages.
+
+# Setup
 ```scala
 libraryDependencies += "com.github.simerplaha" %% "actor" % "0.2.2"
 ```
@@ -14,6 +17,50 @@ Make sure to import `ExecutionContext`
 ```scala
 import scala.concurrent.ExecutionContext.Implicits.global
 ```
+
+# Wired Actor
+Managing `sealed` message classes for each `Actor` can be a bit of work so instead `WiredActor`
+can be created where functions are invoked directly on an `Actor`. 
+
+`WiredActor`s can be created on any `class` instance or `object`.
+
+Functions can also be scheduled. See following example code.
+
+```scala
+object WiredDemo extends App {
+  //suppose this is your implementation
+  object MyImpl {
+    //pure function
+    def hello(name: String): String =
+      s"Hello $name"
+
+    def helloFuture(name: String): Future[String] =
+      Future(s"Hello $name") //some delay operation
+  }
+  //create a wired Actor from your implementation
+  val actor = Actor.wire(MyImpl)
+
+  //call functions on the Actor.
+  val response: Future[String] = actor.call(_.hello("World"))
+  response.foreach(println)
+
+  //call functions on the Actor.
+  val responseFlatMap = actor.callFlatMap(_.helloFuture("World from Future"))
+  responseFlatMap.foreach(println)
+
+  //send is fire and forget. Returns type Unit
+  val responseUnit: Unit = actor.send(impl => println(impl.hello("World again!")))
+
+  //schedule a function call on the actor. Returns Future response and TimerTask.
+  val scheduleResponse: (Future[String], TimerTask) = actor.scheduleCall(delay = 1.second)(_.hello("World!!"))
+  scheduleResponse._1.foreach(println)
+
+  //Give enough time for this test to run
+  Thread.sleep(2000)
+}
+```
+
+# Normal Actor
 
 ## Stateless Actor
 
