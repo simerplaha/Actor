@@ -6,8 +6,9 @@ The mighty [Akka](https://github.com/akka/akka) is great!
 This is a small type-safe `Actor` class that implements most commonly used Actor APIs
 including ask (`?`) which returns a typed `Future[R]`.
 
-Create `WiredActor` where no `case class` messages are required and 
-functions can be submitted as messages.
+Create `WiredActor` where `Actor`s can be created from any `class` or `object` instance.
+`WiredActor` allow for direct invocation of functions without needing 
+to create custom messages.
 
 # Setup
 ```scala
@@ -44,7 +45,7 @@ object WiredDemo extends App {
   val response: Future[String] = actor.call(_.hello("World"))
   response.foreach(println)
 
-  //call functions on the Actor.
+  //call future functions on the Actor with flatMap.
   val responseFlatMap = actor.callFlatMap(_.helloFuture("World from Future"))
   responseFlatMap.foreach(println)
 
@@ -60,7 +61,7 @@ object WiredDemo extends App {
 }
 ```
 
-# Normal Actor
+# Actor
 
 ## Stateless Actor
 

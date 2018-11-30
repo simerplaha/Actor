@@ -9,7 +9,7 @@ parallelExecution in ThisBuild := false
 
 lazy val commonSettings = Seq(
   organization := "com.github.simerplaha",
-  version := "0.2.3",
+  version := "0.2.4",
   scalaVersion := scala212
 )
 
