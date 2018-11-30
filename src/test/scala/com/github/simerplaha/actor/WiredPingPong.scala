@@ -17,24 +17,23 @@
 package com.github.simerplaha.actor
 
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class WiredPingPong(var pingCount: Int, var pongCount: Int) {
-  def ping(replyTo: WiredActor[WiredPingPong]): Unit = {
-    pingCount += 1
-    println(s"pingCount: $pingCount")
-    replyTo.send(_.pong(replyTo))
+object Run extends App {
+
+  class WiredPingPong(var pingCount: Int, var pongCount: Int) {
+    def ping(replyTo: WiredActor[WiredPingPong]): Unit = {
+      pingCount += 1
+      println(s"pingCount: $pingCount")
+      replyTo.send(_.pong(replyTo))
+    }
+
+    def pong(replyTo: WiredActor[WiredPingPong]): Unit = {
+      pongCount += 1
+      println(s"pongCount: $pongCount")
+      replyTo.send(_.ping(replyTo))
+    }
   }
-
-  def pong(replyTo: WiredActor[WiredPingPong]): Unit = {
-    pongCount += 1
-    println(s"pongCount: $pongCount")
-    replyTo.send(_.ping(replyTo))
-  }
-}
-
-object Run extends TestBase with App {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   Actor
     .wire(new WiredPingPong(0, 0))
@@ -43,6 +42,5 @@ object Run extends TestBase with App {
         impl.ping(self)
     }
 
-  sleep(1.second)
-
+  Thread.sleep(1.seconds.toMillis)
 }

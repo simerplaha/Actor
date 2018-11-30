@@ -9,7 +9,7 @@ parallelExecution in ThisBuild := false
 
 lazy val commonSettings = Seq(
   organization := "com.github.simerplaha",
-  version := "0.2.4",
+  version := "0.2.3",
   scalaVersion := scala212
 )
 
@@ -19,7 +19,7 @@ val publishSettings = Seq[Setting[_]](
   publishMavenStyle := true,
   licenses := Seq("APL2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
   publish := {},
-  publishLocal := {},
+//  publishLocal := {},
   sonatypeProjectHosting := Some(GitHubHosting("simerplaha", "Actor", "simer.j@gmail.com")),
   developers := List(
     Developer(id = "simerplaha", name = "Simer Plaha", email = "simer.j@gmail.com", url = url("https://github.com/simerplaha/Actor"))

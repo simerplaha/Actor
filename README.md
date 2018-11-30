@@ -61,6 +61,38 @@ object WiredDemo extends App {
   Thread.sleep(2000)
 }
 ```
+### PingPong example using `WiredActor`
+```scala
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+
+object Run extends App {
+
+  class WiredPingPong(var pingCount: Int, var pongCount: Int) {
+    def ping(replyTo: WiredActor[WiredPingPong]): Unit = {
+      pingCount += 1
+      println(s"pingCount: $pingCount")
+      replyTo.send(_.pong(replyTo))
+    }
+
+    def pong(replyTo: WiredActor[WiredPingPong]): Unit = {
+      pongCount += 1
+      println(s"pongCount: $pongCount")
+      replyTo.send(_.ping(replyTo))
+    }
+  }
+
+  Actor
+    .wire(new WiredPingPong(0, 0))
+    .send {
+      (impl, self) =>
+        impl.ping(self)
+    }
+
+  Thread.sleep(1.seconds.toMillis)
+}
+```
+
 
 # Actor
 
