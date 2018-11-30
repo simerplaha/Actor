@@ -113,7 +113,7 @@ object WiredDemo extends App {
   response.foreach(println)
 
   //call functions on the Actor.
-  val responseFlatMap = actor.callFlatMap(_.helloFuture("World from Future"))
+  val responseFlatMap: Future[String] = actor.callFlatMap(_.helloFuture("World from Future"))
   responseFlatMap.foreach(println)
 
   //send is fire and forget. Returns type Unit

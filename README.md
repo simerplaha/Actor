@@ -28,6 +28,7 @@ can be created where functions are invoked directly on an `Actor`.
 Functions can also be scheduled. See following example code.
 
 ```scala
+
 object WiredDemo extends App {
   //suppose this is your implementation
   object MyImpl {
@@ -45,14 +46,14 @@ object WiredDemo extends App {
   val response: Future[String] = actor.call(_.hello("World"))
   response.foreach(println)
 
-  //call future functions on the Actor with flatMap.
-  val responseFlatMap = actor.callFlatMap(_.helloFuture("World from Future"))
+  //call functions on the Actor.
+  val responseFlatMap: Future[String] = actor.callFlatMap(_.helloFuture("World from Future"))
   responseFlatMap.foreach(println)
 
   //send is fire and forget. Returns type Unit
   val responseUnit: Unit = actor.send(impl => println(impl.hello("World again!")))
 
-  //schedule a function call on the actor. Returns Future response and TimerTask.
+  //schedule a function call on the actor. Returns Future response and TimerTask to cancel.
   val scheduleResponse: (Future[String], TimerTask) = actor.scheduleCall(delay = 1.second)(_.hello("World!!"))
   scheduleResponse._1.foreach(println)
 
