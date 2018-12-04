@@ -2,10 +2,10 @@
 
 The mighty [Akka](https://github.com/akka/akka) is great! 
 
-**`Actor`** - A small type-safe class that implements most commonly used Actor APIs
+**[`Actor`](https://github.com/simerplaha/Actor#actor-1)** - A small type-safe class that implements most commonly used Actor APIs
 including ask (`?`) which returns a typed `Future[R]`.
 
-**`WiredActor`** - Invoke functions directly on `Actor`s. Does not require custom messages.
+**[`WiredActor`](https://github.com/simerplaha/Actor#wiredactor)** - Invoke functions directly on `Actor`s. Does not require custom messages.
 
 # Setup
 ```scala
