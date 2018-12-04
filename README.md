@@ -68,7 +68,7 @@ val scheduleResponse: (Future[String], TimerTask) = actor.scheduleAsk(delay = 1.
 scheduleResponse._1.foreach(println)
 ```
 
-### PingPong example using `WiredActor`
+## PingPong example using `WiredActor`
 ```scala
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
