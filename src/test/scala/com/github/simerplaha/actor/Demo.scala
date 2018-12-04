@@ -117,7 +117,7 @@ object WiredDemo extends App {
   responseFlatMap.foreach(println)
 
   //send is fire and forget. Returns type Unit
-  val responseUnit: Unit = actor.send(impl => println(impl.hello("World again!")))
+  val unitResponse: Unit = actor.send(_.hello("World again!"))
 
   //schedule a function call on the actor. Returns Future response and TimerTask to cancel.
   val scheduleResponse: (Future[String], TimerTask) = actor.scheduleAsk(delay = 1.second)(_.hello("World!!"))

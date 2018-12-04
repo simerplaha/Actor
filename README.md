@@ -57,7 +57,7 @@ responseFlatMap.foreach(println)
 ## send
 
 ```scala
-val unitResponse: Unit = actor.send(impl => println(impl.hello("World again!")))
+val unitResponse: Unit = actor.send(_.hello("World again!"))
 ```
 
 ## schedule
