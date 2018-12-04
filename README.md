@@ -25,7 +25,7 @@ are invoked directly on an `Actor`.
 
 Functions can also be scheduled. See following example code.
 
-### Create a `WiredActor`
+## Create a `WiredActor`
 ```scala
 object MyImpl {
   //pure function
@@ -40,27 +40,27 @@ object MyImpl {
 val actor = Actor.wire(MyImpl)
 ```
 
-### Ask - Invoke Actor function 
+## ask - Invoke Actor function 
 ```scala
 //invoke function
 val response: Future[String] = actor.ask(_.hello("World"))
 response.foreach(println)
 ```
 
-### AskFlatMap
+## askFlatMap
 
 ```scala
 val responseFlatMap: Future[String] = actor.askFlatMap(_.helloFuture("World from Future"))
 responseFlatMap.foreach(println)
 ```
 
-### Send
+## send
 
 ```scala
 val unitResponse: Unit = actor.send(impl => println(impl.hello("World again!")))
 ```
 
-### Schedule 
+## schedule
 
 ```scala
 //schedule a function call on the actor. Returns Future response and TimerTask to cancel.
