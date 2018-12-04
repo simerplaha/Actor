@@ -20,7 +20,7 @@ Managing message types for each `Actor` can be a lot of work for `Actor`s that d
 not require message serialisation. 
 
 `WiredActor`s can be created on any `class`  instance or `object` where functions 
-can be directly invoked on a class instance.
+can be sent and invoked as messages on Actors.
 
 Functions can also be scheduled similar to message scheduling 
 in `Actor`s. See following example code.
