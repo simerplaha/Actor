@@ -73,7 +73,7 @@ scheduleResponse._1.foreach(println)
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object Run extends App {
+object WiredPingPongDemo extends App {
 
   class WiredPingPong(var pingCount: Int, var pongCount: Int) {
     def ping(replyTo: WiredActor[WiredPingPong]): Unit = {
@@ -99,6 +99,9 @@ object Run extends App {
   Thread.sleep(1.seconds.toMillis)
 }
 ```
+
+See [WiredPingPongStateless](src/test/scala/com/github/simerplaha/actor/WiredPingPongStateless.scala) for a stateless
+version of the above `WiredPingPong` WiredActor.
 
 
 # Actor
