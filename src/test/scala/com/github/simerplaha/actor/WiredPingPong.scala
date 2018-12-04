@@ -37,10 +37,7 @@ object Run extends App {
 
   Actor
     .wire(new WiredPingPong(0, 0))
-    .send {
-      (impl, self) =>
-        impl.ping(self)
-    }
+    .send(_.ping(_))
 
   Thread.sleep(1.seconds.toMillis)
 }
