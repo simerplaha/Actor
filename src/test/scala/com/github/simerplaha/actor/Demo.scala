@@ -103,7 +103,7 @@ object WiredDemo extends App {
       s"Hello $name"
 
     def helloFuture(name: String): Future[String] =
-      Future(s"Hello $name") //some delay operation
+      Future(s"Hello $name from the Future!") //some future operation
   }
   //create a wired Actor from your implementation
   val actor = Actor.wire(MyImpl)
@@ -113,15 +113,18 @@ object WiredDemo extends App {
   response.foreach(println)
 
   //call functions on the Actor.
-  val responseFlatMap: Future[String] = actor.askFlatMap(_.helloFuture("World from Future"))
+  val responseFlatMap: Future[String] = actor.askFlatMap(_.helloFuture("World"))
   responseFlatMap.foreach(println)
 
   //send is fire and forget. Returns type Unit
   val unitResponse: Unit = actor.send(_.hello("World again!"))
 
   //schedule a function call on the actor. Returns Future response and TimerTask to cancel.
-  val scheduleResponse: (Future[String], TimerTask) = actor.scheduleAsk(delay = 1.second)(_.hello("World!!"))
+  val scheduleResponse: (Future[String], TimerTask) = actor.scheduleAsk(delay = 1.second)(_.hello("World"))
   scheduleResponse._1.foreach(println)
+
+val scheduleFlatMap: (Future[String], TimerTask) = actor.scheduleAskFlatMap(delay = 1.second)(_.helloFuture("World"))
+scheduleFlatMap._1.foreach(println)
 
   //Give enough time for this test to run
   Thread.sleep(2000)

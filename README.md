@@ -33,14 +33,14 @@ object MyImpl {
     s"Hello $name"
 
   def helloFuture(name: String): Future[String] =
-    Future(s"Hello $name") //some future operation
+    Future(s"Hello $name from the Future!") //some future operation
 }
 
 //create WiredActor
 val actor = Actor.wire(MyImpl)
 ```
 
-## ask - Invoke Actor function 
+## ask 
 ```scala
 //invoke function
 val response: Future[String] = actor.ask(_.hello("World"))
@@ -50,7 +50,7 @@ response.foreach(println)
 ## askFlatMap
 
 ```scala
-val responseFlatMap: Future[String] = actor.askFlatMap(_.helloFuture("World from Future"))
+val responseFlatMap: Future[String] = actor.askFlatMap(_.helloFuture("World"))
 responseFlatMap.foreach(println)
 ```
 
@@ -64,7 +64,7 @@ val unitResponse: Unit = actor.send(_.hello("World again!"))
 
 ```scala
 //schedule a function call on the actor. Returns Future response and TimerTask to cancel.
-val scheduleResponse: (Future[String], TimerTask) = actor.scheduleAsk(delay = 1.second)(_.hello("World!!"))
+val scheduleResponse: (Future[String], TimerTask) = actor.scheduleAsk(delay = 1.second)(_.hello("World"))
 scheduleResponse._1.foreach(println)
 ```
 
