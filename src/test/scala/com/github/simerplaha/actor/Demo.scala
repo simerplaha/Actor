@@ -109,18 +109,18 @@ object WiredDemo extends App {
   val actor = Actor.wire(MyImpl)
 
   //call functions on the Actor.
-  val response: Future[String] = actor.call(_.hello("World"))
+  val response: Future[String] = actor.ask(_.hello("World"))
   response.foreach(println)
 
   //call functions on the Actor.
-  val responseFlatMap: Future[String] = actor.callFlatMap(_.helloFuture("World from Future"))
+  val responseFlatMap: Future[String] = actor.askFlatMap(_.helloFuture("World from Future"))
   responseFlatMap.foreach(println)
 
   //send is fire and forget. Returns type Unit
   val responseUnit: Unit = actor.send(impl => println(impl.hello("World again!")))
 
   //schedule a function call on the actor. Returns Future response and TimerTask to cancel.
-  val scheduleResponse: (Future[String], TimerTask) = actor.scheduleCall(delay = 1.second)(_.hello("World!!"))
+  val scheduleResponse: (Future[String], TimerTask) = actor.scheduleAsk(delay = 1.second)(_.hello("World!!"))
   scheduleResponse._1.foreach(println)
 
   //Give enough time for this test to run
