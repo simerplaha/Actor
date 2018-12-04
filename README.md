@@ -16,14 +16,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 ```
 
 # WiredActor
-Managing message types can be a lot of work for `Actor`s that do 
-not require message serialisation.
+Functions can be sent, invoked & scheduled as messages to `WiredActor`s similar to messages in an `Actor`.
 
-`WiredActor`s can be created on any `class` instance or `object` where functions 
-can be sent and invoked as messages on Actors.
-
-Functions can also be scheduled similar to message scheduling 
-in `Actor`s. See following example code.
+`WiredActor`s can be created on any `class` instance or `object`.
 
 ## Create a `WiredActor`
 ```scala
