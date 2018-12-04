@@ -27,8 +27,8 @@ Functions can also be scheduled. See following example code.
 
 ## Create a `WiredActor`
 ```scala
+//your class that contains Actor functions
 object MyImpl {
-  //pure function
   def hello(name: String): String =
     s"Hello $name"
 
