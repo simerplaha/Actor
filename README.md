@@ -1,15 +1,14 @@
 # Actor
 
-The mighty [Akka](https://github.com/akka/akka) is great! 
-
 **[`Actor`](https://github.com/simerplaha/Actor#actor-1)** - A small type-safe class that implements most commonly used Actor APIs
 including ask (`?`) which returns a typed `Future[R]`.
 
-**[`WiredActor`](https://github.com/simerplaha/Actor#wiredactor)** - Invoke functions directly on `Actor`s. Does not require custom messages.
+**[`WiredActor`](https://github.com/simerplaha/Actor#wiredactor)** - Invoke functions directly on `Actor`s.
+Send functions as messages. 
 
 # Setup
 ```scala
-libraryDependencies += "com.github.simerplaha" %% "actor" % "0.2.4"
+libraryDependencies += "com.github.simerplaha" %% "actor" % "0.3"
 ```
 Make sure to import `ExecutionContext`
 ```scala
@@ -34,7 +33,7 @@ object MyImpl {
     s"Hello $name"
 
   def helloFuture(name: String): Future[String] =
-    Future(s"Hello $name") //some delay operation
+    Future(s"Hello $name") //some future operation
 }
 
 //create WiredActor
