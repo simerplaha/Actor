@@ -1,4 +1,4 @@
-Please use swaydb's [Actor](https://github.com/simerplaha/SwayDB/blob/master/data/src/main/scala/swaydb/Actor.scala) implementation instead which includes caching, recovery & ordered queues. It's easier to maintain and add features to it within [SwayDB](https://github.com/simerplaha/SwayDB)'s repo as I'm using constantly there.
+Please use swaydb's [Actor](https://github.com/simerplaha/SwayDB/blob/master/data/src/main/scala/swaydb/Actor.scala) implementation instead which includes caching, recovery & ordered queues. It's easier to maintain and add features to it within [SwayDB](https://github.com/simerplaha/SwayDB)'s repo as I'm using it constantly there.
 
 ```scala
 libraryDependencies += "io.swaydb" %% "swaydb" % "0.9-ALPHA.2"
