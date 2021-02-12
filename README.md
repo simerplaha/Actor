@@ -1,17 +1,16 @@
 # Actor
 
-**[`Actor`](https://github.com/simerplaha/Actor#actor-1)** - A small type-safe class that implements most commonly used Actor APIs
+**[`Actor`](https://github.com/simerplaha/Actor#actor-1)** - A small type-safe class that implements the most commonly used Actor APIs
 including ask (`?`) which returns a typed `Future[R]`.
 
-**[`WiredActor`](https://github.com/simerplaha/Actor#wiredactor)** - Invoke functions directly on `Actor`s.
-Send functions as messages. 
+**[`WiredActor`](https://github.com/simerplaha/Actor#wiredactor)** - Convert any `object` to an `Actor` and allows invoking the object's function as messages.
 
 
 # Setup
 ```scala
 libraryDependencies += "com.github.simerplaha" %% "actor" % "0.3"
 ```
-Make sure to import `ExecutionContext`
+Make sure you have `ExecutionContext` in scope
 ```scala
 import scala.concurrent.ExecutionContext.Implicits.global
 ```
