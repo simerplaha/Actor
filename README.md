@@ -16,90 +16,6 @@ Make sure to import `ExecutionContext`
 import scala.concurrent.ExecutionContext.Implicits.global
 ```
 
-# WiredActor
-Functions can be sent, invoked & scheduled as messages to `WiredActor`s similar to messages in an `Actor`.
-
-`WiredActor`s can be created on any `class` instance or `object`.
-
-## Create a `WiredActor`
-```scala
-//your class that contains Actor functions
-object MyImpl {
-  def hello(name: String): String =
-    s"Hello $name"
-
-  def helloFuture(name: String): Future[String] =
-    Future(s"Hello $name from the Future!") //some future operation
-}
-
-//create WiredActor
-val actor = Actor.wire(MyImpl)
-```
-
-## ask 
-```scala
-//invoke function
-val response: Future[String] = actor.ask(_.hello("World"))
-response.foreach(println)
-```
-
-## askFlatMap
-
-```scala
-val responseFlatMap: Future[String] = actor.askFlatMap(_.helloFuture("World"))
-responseFlatMap.foreach(println)
-```
-
-## send
-
-```scala
-val unitResponse: Unit = actor.send(_.hello("World again!"))
-```
-
-## schedule
-
-```scala
-//schedule a function call on the actor. Returns Future response and TimerTask to cancel.
-val scheduleResponse: (Future[String], TimerTask) = actor.scheduleAsk(delay = 1.second)(_.hello("World"))
-scheduleResponse._1.foreach(println)
-```
-
-## PingPong example using `WiredActor`
-```scala
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
-
-object WiredPingPongDemo extends App {
-
-  class WiredPingPong(var pingCount: Int, var pongCount: Int) {
-    def ping(replyTo: WiredActor[WiredPingPong]): Unit = {
-      pingCount += 1
-      println(s"pingCount: $pingCount")
-      replyTo.send(_.pong(replyTo))
-    }
-
-    def pong(replyTo: WiredActor[WiredPingPong]): Unit = {
-      pongCount += 1
-      println(s"pongCount: $pongCount")
-      replyTo.send(_.ping(replyTo))
-    }
-  }
-
-  Actor
-    .wire(new WiredPingPong(0, 0))
-    .send {
-      (impl, self) =>
-        impl.ping(self)
-    }
-
-  Thread.sleep(1.seconds.toMillis)
-}
-```
-
-See [WiredPingPongStateless](src/test/scala/com/github/simerplaha/actor/WiredPingPongStateless.scala) for a stateless
-version of the above `WiredPingPong` WiredActor.
-
-
 # Actor
 
 ## Stateless Actor
@@ -239,3 +155,87 @@ pong ! Pong(ping)
 //run this for 1 seconds
 Thread.sleep(1.second.toMillis)
 ```
+
+
+# WiredActor
+Functions can be sent, invoked & scheduled as messages to `WiredActor`s similar to messages in an `Actor`.
+
+`WiredActor`s can be created on any `class` instance or `object`.
+
+## Create a `WiredActor`
+```scala
+//your class that contains Actor functions
+object MyImpl {
+  def hello(name: String): String =
+    s"Hello $name"
+
+  def helloFuture(name: String): Future[String] =
+    Future(s"Hello $name from the Future!") //some future operation
+}
+
+//create WiredActor
+val actor = Actor.wire(MyImpl)
+```
+
+## ask 
+```scala
+//invoke function
+val response: Future[String] = actor.ask(_.hello("World"))
+response.foreach(println)
+```
+
+## askFlatMap
+
+```scala
+val responseFlatMap: Future[String] = actor.askFlatMap(_.helloFuture("World"))
+responseFlatMap.foreach(println)
+```
+
+## send
+
+```scala
+val unitResponse: Unit = actor.send(_.hello("World again!"))
+```
+
+## schedule
+
+```scala
+//schedule a function call on the actor. Returns Future response and TimerTask to cancel.
+val scheduleResponse: (Future[String], TimerTask) = actor.scheduleAsk(delay = 1.second)(_.hello("World"))
+scheduleResponse._1.foreach(println)
+```
+
+## PingPong example using `WiredActor`
+```scala
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+
+object WiredPingPongDemo extends App {
+
+  class WiredPingPong(var pingCount: Int, var pongCount: Int) {
+    def ping(replyTo: WiredActor[WiredPingPong]): Unit = {
+      pingCount += 1
+      println(s"pingCount: $pingCount")
+      replyTo.send(_.pong(replyTo))
+    }
+
+    def pong(replyTo: WiredActor[WiredPingPong]): Unit = {
+      pongCount += 1
+      println(s"pongCount: $pongCount")
+      replyTo.send(_.ping(replyTo))
+    }
+  }
+
+  Actor
+    .wire(new WiredPingPong(0, 0))
+    .send {
+      (impl, self) =>
+        impl.ping(self)
+    }
+
+  Thread.sleep(1.seconds.toMillis)
+}
+```
+
+See [WiredPingPongStateless](src/test/scala/com/github/simerplaha/actor/WiredPingPongStateless.scala) for a stateless
+version of the above `WiredPingPong` WiredActor.
