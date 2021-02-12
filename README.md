@@ -1,12 +1,3 @@
-Please use swaydb's [Actor](https://github.com/simerplaha/SwayDB/blob/master/data/src/main/scala/swaydb/Actor.scala) implementation instead which includes caching, recovery & ordered queues. It's easier to maintain and add features to it within [SwayDB](https://github.com/simerplaha/SwayDB)'s repo as I'm using it constantly there.
-
-```scala
-libraryDependencies += "io.swaydb" %% "data" % "latest"
-```
-
-The Actor will be moved to it's own repo since it's not dependant on the database.
-
-
 # Actor
 
 **[`Actor`](https://github.com/simerplaha/Actor#actor-1)** - A small type-safe class that implements most commonly used Actor APIs
