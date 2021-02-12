@@ -3,7 +3,7 @@
 **[`Actor`](https://github.com/simerplaha/Actor#actor-1)** - A small type-safe class that implements the most commonly used Actor APIs
 including ask (`?`) which returns a typed `Future[R]`.
 
-**[`WiredActor`](https://github.com/simerplaha/Actor#wiredactor)** - Convert any `object` to an `Actor` and allows invoking the object's function as messages.
+**[`WiredActor`](https://github.com/simerplaha/Actor#wiredactor)** - Convert any `object` to an `Actor` that allows invoking the `object`'s function as messages.
 
 
 # Setup
